@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mis Dólares</title>
+<style>
+/* ════════════════════════════════════════════
+   TOKENS & RESET
+════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --sand:    #F5F2EC;
+  --sand-2:  #EDE9E0;
+  --sand-3:  #DDD8CC;
+  --stone:   #BFBAB0;
+  --ink:     #1C1B18;
+  --ink-2:   #4A4840;
+  --ink-3:   #8A8780;
+  --green:   #1A6B49;
+  --green-2: #2E9E6E;
+  --green-bg:#E6F4ED;
+  --red:     #B83327;
+  --red-2:   #D94F40;
+  --red-bg:  #FAEAE8;
+  --amber:   #8A5C00;
+  --amber-bg:#FEF3DC;
+  --blue:    #1452A0;
+  --blue-bg: #E5EFFC;
+  --white:   #FFFFFF;
+
+  --r-sm:  8px;
+  --r:     12px;
+  --r-lg:  18px;
+  --r-xl:  24px;
+  --r-2xl: 32px;
+
+  --sh:    0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.06);
+  --sh-sm: 0 1px 2px rgba(0,0,0,.04),0 2px 8px rgba(0,0,0,.04);
+
+  --f-serif: 'Georgia','Times New Roman',serif;
+  --f-sans:  -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+
+  --dur: .2s;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--f-sans);
+  background: var(--sand);
+  color: var(--ink);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+/* ════════════════════════════════════════════
+   SHELL & VIEWS
+════════════════════════════════════════════ */
+.shell{
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding-bottom: 90px;
+  position: relative;
+}
+
+.view{ display:none; animation: fadeSlide .22s var(--ease) both; }
+.view.on{ display:block; }
+@keyframes fadeSlide{
+  from{ opacity:0; transform:translateY(10px); }
+  to  { opacity:1; transform:translateY(0); }
+}
+
+/* ════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════ */
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding: 28px 22px 0;
+  margin-bottom: 4px;
+}
+.app-logo{
+  display:flex;align-items:center;gap:8px;
+}
+.app-logo-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+}
+.app-logo-name{
+  font-size:14px;font-weight:600;color:var(--ink);
+  letter-spacing:-.2px;
+}
+.app-date{
+  font-size:12px;color:var(--ink-3);
+}
+
+/* ════════════════════════════════════════════
+   TC HERO (Inicio)
+════════════════════════════════════════════ */
+.tc-section{
+  padding: 22px 22px 10px;
+  text-align:center;
+}
+.tc-eyebrow{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:10px;font-weight:600;
+}
+.tc-row{
+  display:flex;align-items:baseline;justify-content:center;gap:4px;
+}
+.tc-cur-label{
+  font-family:var(--f-serif);
+  font-size:26px;color:var(--ink-3);line-height:1;
+}
+.tc-input{
+  font-family:var(--f-serif);
+  font-size:58px;font-weight:400;color:var(--ink);
+  background:transparent;border:none;outline:none;
+  width:190px;text-align:center;
+  letter-spacing:-3px;line-height:1;
+  border-bottom:2px solid transparent;
+  transition:border-color var(--dur) var(--ease);
+  padding:0 2px;cursor:text;
+}
+.tc-input:focus{ border-bottom-color:var(--stone); }
+.tc-sub{
+  font-size:11px;color:var(--ink-3);margin-top:6px;
+}
+
+/* ════════════════════════════════════════════
+   RECOMENDACIÓN PILL
+════════════════════════════════════════════ */
+.rec-wrap{
+  padding: 0 22px 18px;
+  display:flex;justify-content:center;
+}
+.rec-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 16px;border-radius:40px;
+  font-size:12px;font-weight:500;
+  transition:all var(--dur) var(--ease);
+  cursor:default;
+  max-width:100%;
+}
+.rec-pill.green { background:var(--green-bg);color:var(--green); }
+.rec-pill.red   { background:var(--red-bg);  color:var(--red);   }
+.rec-pill.amber { background:var(--amber-bg);color:var(--amber); }
+.rec-pill.blue  { background:var(--blue-bg); color:var(--blue);  }
+.rec-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+.rec-dot.green { background:var(--green-2); }
+.rec-dot.red   { background:var(--red-2);   }
+.rec-dot.amber { background:var(--amber);   }
+.rec-dot.blue  { background:var(--blue);    }
+@keyframes pulse{
+  0%,100%{ opacity:1; } 50%{ opacity:.45; }
+}
+
+/* ════════════════════════════════════════════
+   CARD BASE
+════════════════════════════════════════════ */
+.card{
+  background:var(--white);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh);
+  margin:0 14px 12px;
+  overflow:hidden;
+}
+.divider{ height:1px;background:var(--sand-2);margin:0 18px; }
+
+/* ════════════════════════════════════════════
+   OPERACIÓN CARD (Inicio)
+════════════════════════════════════════════ */
+
+/* Tipo row */
+.type-row{ display:flex;gap:8px;padding:14px 14px 12px; }
+.type-btn{
+  flex:1;padding:14px 8px;
+  border:1.5px solid var(--sand-3);border-radius:var(--r-lg);
+  background:transparent;cursor:pointer;text-align:center;
+  transition:all .18s var(--ease);
+}
+.tb-icon{ font-size:18px;margin-bottom:4px; }
+.tb-label{ font-size:13px;font-weight:600;color:var(--ink-2);display:block; }
+.tb-sub{ font-size:11px;color:var(--ink-3);display:block;margin-top:2px; }
+.type-btn.active-buy  { border-color:var(--green);background:var(--green-bg); }
+.type-btn.active-buy .tb-label{ color:var(--green); }
+.type-btn.active-sell { border-color:var(--red);background:var(--red-bg); }
+.type-btn.active-sell .tb-label{ color:var(--red); }
+
+/* Amount */
+.amount-area{ padding:14px 14px 14px; }
+.field-label{
+  font-size:10px;font-weight:700;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+}
+.amount-row{ display:flex;gap:8px;align-items:stretch; }
+.amount-input-wrap{ flex:1;position:relative; }
+.amount-prefix{
+  position:absolute;left:13px;top:50%;
+  transform:translateY(-50%);
+  font-size:17px;color:var(--ink-3);font-weight:500;
+  pointer-events:none;
+}
+.amount-input{
+  width:100%;
+  padding:13px 13px 13px 36px;
+  font-size:22px;font-family:var(--f-serif);
+  color:var(--ink);background:var(--sand);
+  border:1.5px solid var(--sand-3);border-radius:var(--r);
+  outline:none;letter-spacing:-.5px;
+  transition:border-color var(--dur),background var(--dur);
+}
+.amount-input:focus{ border-color:var(--stone);background:var(--white); }
+.cur-toggle{
+  display:flex;flex-direction:column;
+  border:1.5px solid var(--sand-3);border-radius:var(--r);
+  overflow:hidden;background:var(--sand);
+}
+.cur-opt{
+  flex:1;padding:0 13px;font-size:11px;font-weight:700;
+  cursor:pointer;border:none;background:transparent;
+  color:var(--ink-3);letter-spacing:.04em;
+  transition:all .15s;white-space:nowrap;
+}
+.cur-opt.on{ background:var(--ink);color:var(--white); }
+.cur-opt:first-child{ border-bottom:1px solid var(--sand-3); }
+
+/* Note field */
+.note-area{ padding:0 14px 14px; }
+.note-input{
+  width:100%;padding:10px 13px;
+  font-size:13px;font-family:var(--f-sans);
+  color:var(--ink-2);background:var(--sand);
+  border:1.5px solid var(--sand-3);border-radius:var(--r);
+  outline:none;resize:none;
+  transition:border-color var(--dur);
+}
+.note-input:focus{ border-color:var(--stone); }
+.note-input::placeholder{ color:var(--stone); }
+
+/* Result */
+.result-area{ padding:16px 18px 18px; }
+.result-label{
+  font-size:10px;font-weight:700;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.08em;
+  text-align:center;margin-bottom:6px;
+}
+.result-amount{
+  font-family:var(--f-serif);
+  font-size:38px;letter-spacing:-1.5px;line-height:1;
+  text-align:center;margin-bottom:14px;
+  transition:color var(--dur);
+}
+.result-amount.buy  { color:var(--green); }
+.result-amount.sell { color:var(--red);   }
+.result-amount.empty{ color:var(--stone); }
+.sim-box{
+  background:var(--sand);border-radius:var(--r);
+  padding:12px 14px;
+  font-size:13px;color:var(--ink-2);line-height:1.65;
+}
+.sim-box strong{ color:var(--ink);font-weight:600; }
+.sim-gain{ color:var(--green);font-weight:600; }
+.sim-lose{ color:var(--red);font-weight:600; }
+
+/* Save btn */
+.save-wrap{ padding:0 14px 14px; }
+.btn-primary{
+  width:100%;padding:15px;
+  background:var(--ink);color:var(--white);
+  border:none;border-radius:var(--r-lg);
+  font-size:15px;font-weight:600;font-family:var(--f-sans);
+  letter-spacing:.01em;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .15s,transform .12s;
+}
+.btn-primary:hover{ opacity:.88; }
+.btn-primary:active{ transform:scale(.975); }
+.btn-primary:disabled{ opacity:.35;cursor:not-allowed; }
+.save-fb{
+  text-align:center;font-size:12px;color:var(--green);
+  min-height:18px;margin-top:8px;
+  transition:opacity .3s;
+}
+
+/* ════════════════════════════════════════════
+   POSICIÓN CARD (aparece en Inicio si hay ops)
+════════════════════════════════════════════ */
+.pos-card{
+  background:var(--ink);border-radius:var(--r-xl);
+  margin:0 14px 12px;padding:22px 20px;
+  box-shadow:var(--sh);
+  color:var(--white);
+}
+.pos-card-head{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:18px;
+}
+.pos-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;opacity:.5;margin-bottom:5px;
+}
+.pos-usd{
+  font-family:var(--f-serif);font-size:40px;
+  letter-spacing:-2px;line-height:1;color:var(--white);
+}
+.pos-gain-badge{
+  display:inline-flex;align-items:center;
+  padding:6px 12px;border-radius:40px;
+  font-size:13px;font-weight:700;
+  margin-top:4px;
+}
+.pos-gain-badge.pos{ background:rgba(46,158,110,.25);color:#6DECAA; }
+.pos-gain-badge.neg{ background:rgba(217,79,64,.25);color:#F8948A; }
+.pos-gain-badge.neu{ background:rgba(255,255,255,.1);color:rgba(255,255,255,.6); }
+
+.pos-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+.pos-tile{
+  background:rgba(255,255,255,.07);
+  border-radius:var(--r);padding:13px 14px;
+}
+.pos-tile-label{
+  font-size:10px;font-weight:600;opacity:.5;
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;
+}
+.pos-tile-value{
+  font-family:var(--f-serif);font-size:20px;
+  letter-spacing:-.5px;color:var(--white);
+}
+
+/* ════════════════════════════════════════════
+   PROGRESS (Meta)
+════════════════════════════════════════════ */
+.meta-card{
+  background:var(--white);border-radius:var(--r-xl);
+  margin:0 14px 12px;padding:18px 20px;
+  box-shadow:var(--sh-sm);
+}
+.meta-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;
+}
+.meta-title{ font-size:13px;font-weight:600;color:var(--ink); }
+.meta-edit-btn{
+  font-size:11px;color:var(--ink-3);cursor:pointer;
+  background:none;border:none;padding:4px 8px;border-radius:6px;
+  transition:background .15s;
+}
+.meta-edit-btn:hover{ background:var(--sand-2); }
+.meta-numbers{
+  display:flex;justify-content:space-between;
+  align-items:flex-end;margin-bottom:10px;
+}
+.meta-actual{
+  font-family:var(--f-serif);font-size:26px;
+  letter-spacing:-1px;color:var(--ink);
+}
+.meta-objetivo{
+  font-size:12px;color:var(--ink-3);
+  text-align:right;line-height:1.4;
+}
+.meta-objetivo strong{ color:var(--ink-2); }
+.progress-track{
+  height:6px;background:var(--sand-2);border-radius:3px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--green-2),var(--green));
+  transition:width .6s var(--ease);
+}
+.meta-pct{
+  font-size:11px;color:var(--ink-3);margin-top:6px;text-align:right;
+}
+
+/* Meta setup form (hidden by default) */
+.meta-setup{
+  display:none;gap:8px;margin-top:12px;
+}
+.meta-setup.on{ display:flex; }
+.meta-input{
+  flex:1;padding:9px 12px;font-size:14px;font-family:var(--f-sans);
+  background:var(--sand);border:1.5px solid var(--sand-3);
+  border-radius:var(--r);outline:none;color:var(--ink);
+  transition:border-color var(--dur);
+}
+.meta-input:focus{ border-color:var(--stone); }
+.btn-small{
+  padding:9px 16px;border:none;border-radius:var(--r);
+  background:var(--ink);color:var(--white);
+  font-size:13px;font-weight:600;cursor:pointer;
+  transition:opacity .15s;white-space:nowrap;
+}
+.btn-small:hover{ opacity:.85; }
+.btn-small.ghost{
+  background:var(--sand-2);color:var(--ink-3);
+}
+
+/* ════════════════════════════════════════════
+   HISTORIAL VIEW
+════════════════════════════════════════════ */
+.page-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:26px 22px 14px;
+}
+.page-title{
+  font-family:var(--f-serif);font-size:24px;
+  letter-spacing:-.5px;color:var(--ink);
+}
+.page-actions{ display:flex;gap:8px;align-items:center; }
+
+.btn-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:var(--white);border:1px solid var(--sand-3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:pointer;
+  box-shadow:var(--sh-sm);transition:all .15s;
+}
+.btn-icon:hover{ background:var(--sand-2); }
+.btn-danger-sm{
+  padding:7px 14px;border:1px solid var(--sand-3);border-radius:40px;
+  background:transparent;font-size:12px;color:var(--red);
+  cursor:pointer;transition:background .15s;
+}
+.btn-danger-sm:hover{ background:var(--red-bg); }
+
+.hist-list{ padding:0 14px; }
+
+/* Group header */
+.group-label{
+  font-size:11px;font-weight:700;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:16px 4px 8px;
+}
+
+/* Op card */
+.op-card{
+  background:var(--white);border-radius:var(--r-lg);
+  box-shadow:var(--sh-sm);
+  padding:14px 16px;margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:12px;
+  transition:opacity .2s;
+}
+.op-icon{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.op-icon.buy  { background:var(--green-bg); }
+.op-icon.sell { background:var(--red-bg);   }
+.op-body{ flex:1;min-width:0; }
+.op-type{ font-size:13px;font-weight:600;color:var(--ink); }
+.op-meta{ font-size:11px;color:var(--ink-3);margin-top:2px;line-height:1.5; }
+.op-note{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:5px;padding:2px 8px;border-radius:20px;
+  background:var(--sand);font-size:11px;color:var(--ink-3);
+}
+.op-right{ text-align:right;flex-shrink:0; }
+.op-amount{ font-size:14px;font-weight:700;letter-spacing:-.3px; }
+.op-amount.buy  { color:var(--green); }
+.op-amount.sell { color:var(--red);   }
+.op-result-lbl{ font-size:11px;color:var(--ink-3);margin-top:2px; }
+.op-del{
+  background:none;border:none;cursor:pointer;
+  color:var(--stone);font-size:15px;padding:2px 4px;
+  border-radius:6px;transition:all .15s;flex-shrink:0;
+  align-self:center;
+}
+.op-del:hover{ background:var(--red-bg);color:var(--red); }
+
+/* Empty */
+.empty-state{
+  text-align:center;padding:56px 24px;color:var(--ink-3);
+}
+.empty-icon{ font-size:40px;margin-bottom:12px;opacity:.7; }
+.empty-text{ font-size:14px;line-height:1.7; }
+
+/* ════════════════════════════════════════════
+   RESUMEN VIEW
+════════════════════════════════════════════ */
+
+/* Hero dark card */
+.res-hero{
+  background:var(--ink);border-radius:var(--r-xl);
+  margin:0 14px 12px;padding:24px 22px;
+  box-shadow:var(--sh);
+}
+.res-hero-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:20px;
+}
+.res-hero-left .label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(255,255,255,.45);
+  margin-bottom:6px;
+}
+.res-hero-val{
+  font-family:var(--f-serif);font-size:42px;
+  letter-spacing:-2px;color:var(--white);line-height:1;
+}
+.res-gain-pill{
+  padding:7px 14px;border-radius:40px;
+  font-size:14px;font-weight:700;margin-top:8px;
+  display:inline-block;
+}
+.res-gain-pill.pos{ background:rgba(46,158,110,.25);color:#6DECAA; }
+.res-gain-pill.neg{ background:rgba(217,79,64,.25);color:#F8948A; }
+.res-gain-pill.neu{ background:rgba(255,255,255,.1);color:rgba(255,255,255,.5); }
+
+.res-4grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.res-mini{
+  background:rgba(255,255,255,.07);
+  border-radius:var(--r);padding:12px 13px;
+}
+.res-mini .label{
+  font-size:10px;font-weight:600;
+  color:rgba(255,255,255,.45);
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;
+}
+.res-mini .value{
+  font-family:var(--f-serif);font-size:18px;
+  letter-spacing:-.4px;color:var(--white);
+}
+
+/* Detail cards */
+.res-card{
+  background:var(--white);border-radius:var(--r-xl);
+  margin:0 14px 12px;padding:20px 20px;
+  box-shadow:var(--sh-sm);
+}
+.res-card-title{
+  font-size:12px;font-weight:700;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:14px;
+}
+.info-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 0;border-bottom:1px solid var(--sand-2);
+  font-size:14px;
+}
+.info-row:last-child{ border-bottom:none; }
+.info-label{ color:var(--ink-2); }
+.info-value{ font-weight:600;color:var(--ink); }
+.info-value.pos{ color:var(--green); }
+.info-value.neg{ color:var(--red); }
+
+/* Narrative */
+.narrative{
+  font-size:14px;color:var(--ink-2);line-height:1.75;
+}
+.narrative strong{ color:var(--ink);font-weight:600; }
+.narrative .acc-g{ color:var(--green);font-weight:600; }
+.narrative .acc-r{ color:var(--red);font-weight:600; }
+
+/* Monthly insights mini cards */
+.insight-chips{ display:flex;flex-direction:column;gap:8px; }
+.insight-chip{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px 14px;border-radius:var(--r);
+  background:var(--sand);font-size:13px;color:var(--ink-2);
+  line-height:1.5;
+}
+.chip-icon{ font-size:16px;flex-shrink:0;margin-top:1px; }
+.chip-text strong{ color:var(--ink); }
+
+/* Export/Import */
+.data-row{
+  display:flex;gap:8px;margin-top:12px;
+}
+.btn-outline{
+  flex:1;padding:10px;border:1.5px solid var(--sand-3);
+  border-radius:var(--r);background:transparent;
+  font-size:13px;font-weight:600;color:var(--ink-2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:6px;transition:all .15s;
+}
+.btn-outline:hover{ background:var(--sand-2);border-color:var(--stone); }
+
+/* ════════════════════════════════════════════
+   TAB BAR
+════════════════════════════════════════════ */
+.tab-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(245,242,236,.94);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--sand-3);
+  padding:10px 0 max(12px,env(safe-area-inset-bottom));
+}
+.tab-bar-inner{
+  display:flex;max-width:440px;margin:0 auto;
+  padding:0 20px;gap:4px;
+}
+.tab-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 10px;border:none;background:transparent;cursor:pointer;
+  border-radius:var(--r);transition:background .15s;
+  font-family:var(--f-sans);
+}
+.tab-item:hover{ background:var(--sand-2); }
+.tab-icon{ font-size:20px;line-height:1;transition:transform .18s var(--ease); }
+.tab-label{ font-size:10px;color:var(--ink-3);font-weight:500;letter-spacing:.02em; }
+.tab-item.on .tab-label{ color:var(--ink);font-weight:700; }
+.tab-item.on .tab-icon{ transform:scale(1.08); }
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<!-- ══════════════════════════════════════════
+     VIEW: INICIO
+══════════════════════════════════════════ -->
+<div id="v-inicio" class="view on">
+
+  <header class="app-header">
+    <div class="app-logo">
+      <div class="app-logo-mark">💵</div>
+      <span class="app-logo-name">Mis Dólares</span>
+    </div>
+    <span class="app-date" id="hdr-date"></span>
+  </header>
+
+  <!-- TC -->
+  <div class="tc-section">
+    <div class="tc-eyebrow">Tipo de cambio hoy</div>
+    <div class="tc-row">
+      <span class="tc-cur-label">S/</span>
+      <input type="number" id="tc-input" class="tc-input"
+             value="3.7245" step="0.0001" min="2.5" max="6"
+             inputmode="decimal" autocomplete="off">
+    </div>
+    <div class="tc-sub">Toca para actualizar el tipo de cambio</div>
+  </div>
+
+  <!-- Recomendación -->
+  <div class="rec-wrap">
+    <div class="rec-pill blue" id="rec-pill">
+      <span class="rec-dot blue" id="rec-dot"></span>
+      <span id="rec-text">Actualizando recomendación...</span>
+    </div>
+  </div>
+
+  <!-- Posición actual (oculta si no hay ops) -->
+  <div id="pos-section" style="display:none">
+    <div class="pos-card">
+      <div class="pos-card-head">
+        <div>
+          <div class="pos-eyebrow">Tu posición</div>
+          <div class="pos-usd" id="pos-usd">$0</div>
+          <div class="pos-gain-badge neu" id="pos-gain">Sin datos</div>
+        </div>
+      </div>
+      <div class="pos-grid">
+        <div class="pos-tile">
+          <div class="pos-tile-label">Costo promedio</div>
+          <div class="pos-tile-value" id="pos-tc-prom">—</div>
+        </div>
+        <div class="pos-tile">
+          <div class="pos-tile-label">Valor hoy</div>
+          <div class="pos-tile-value" id="pos-valor">S/ 0</div>
+        </div>
+        <div class="pos-tile">
+          <div class="pos-tile-label">Invertido</div>
+          <div class="pos-tile-value" id="pos-invertido">S/ 0</div>
+        </div>
+        <div class="pos-tile">
+          <div class="pos-tile-label">Operaciones</div>
+          <div class="pos-tile-value" id="pos-ops">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta de ahorro (opcional) -->
+  <div class="meta-card" id="meta-card">
+    <div class="meta-head">
+      <span class="meta-title" id="meta-title">Meta de ahorro en USD</span>
+      <button class="meta-edit-btn" id="meta-edit-btn" onclick="toggleMetaEdit()">Configurar</button>
+    </div>
+    <div class="meta-setup" id="meta-setup">
+      <input type="number" id="meta-input" class="meta-input"
+             placeholder="Ej: 10000" min="1" step="100" inputmode="decimal">
+      <button class="btn-small" onclick="guardarMeta()">Guardar</button>
+      <button class="btn-small ghost" onclick="cancelarMeta()">✕</button>
+    </div>
+    <div id="meta-display" style="display:none">
+      <div class="meta-numbers">
+        <div class="meta-actual" id="meta-actual">$0</div>
+        <div class="meta-objetivo">
+          Meta: <strong id="meta-obj-val">$10,000</strong><br>
+          <span id="meta-pct-txt" style="color:var(--green);font-weight:600"></span>
+        </div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="meta-bar" style="width:0%"></div>
+      </div>
+      <div class="meta-pct" id="meta-label"></div>
+    </div>
+  </div>
+
+  <!-- Operación -->
+  <div class="card">
+    <!-- Tipo -->
+    <div class="type-row">
+      <button class="type-btn active-buy" id="btn-buy" onclick="setTipo('buy')">
+        <div class="tb-icon">🟢</div>
+        <span class="tb-label">Comprar USD</span>
+        <span class="tb-sub">Doy soles</span>
+      </button>
+      <button class="type-btn" id="btn-sell" onclick="setTipo('sell')">
+        <div class="tb-icon">🔴</div>
+        <span class="tb-label">Vender USD</span>
+        <span class="tb-sub">Doy dólares</span>
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Monto -->
+    <div class="amount-area">
+      <div class="field-label">¿Cuánto entregas?</div>
+      <div class="amount-row">
+        <div class="amount-input-wrap">
+          <span class="amount-prefix" id="cur-prefix">S/</span>
+          <input type="number" id="amount-input" class="amount-input"
+                 placeholder="0" min="0" step="any" inputmode="decimal"
+                 oninput="calcular()">
+        </div>
+        <div class="cur-toggle">
+          <button class="cur-opt on" id="cur-pen" onclick="setCur('pen')">S/</button>
+          <button class="cur-opt"    id="cur-usd" onclick="setCur('usd')">$</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nota -->
+    <div class="note-area">
+      <input type="text" id="note-input" class="note-input"
+             placeholder="Nota opcional: viaje, ahorro, universidad..."
+             maxlength="60">
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Resultado -->
+    <div class="result-area">
+      <div class="result-label">Recibirías</div>
+      <div class="result-amount empty" id="result-main">—</div>
+      <div class="sim-box" id="sim-box">Ingresa un monto para simular la operación.</div>
+    </div>
+
+    <!-- Guardar -->
+    <div class="save-wrap">
+      <button class="btn-primary" id="btn-save" onclick="guardar()" disabled>
+        Guardar operación
+      </button>
+      <div class="save-fb" id="save-fb"></div>
+    </div>
+  </div>
+
+</div><!-- /v-inicio -->
+
+
+<!-- ══════════════════════════════════════════
+     VIEW: HISTORIAL
+══════════════════════════════════════════ -->
+<div id="v-historial" class="view">
+  <div class="page-header">
+    <h2 class="page-title">Historial</h2>
+    <div class="page-actions">
+      <button class="btn-icon" onclick="exportarJSON()" title="Exportar">⬆️</button>
+      <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="Importar">⬇️</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarJSON(event)">
+      <button class="btn-danger-sm" onclick="borrarTodo()">Borrar todo</button>
+    </div>
+  </div>
+  <div class="hist-list" id="hist-list"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     VIEW: RESUMEN
+══════════════════════════════════════════ -->
+<div id="v-resumen" class="view">
+  <div class="page-header">
+    <h2 class="page-title">Resumen</h2>
+  </div>
+
+  <!-- Hero -->
+  <div class="res-hero">
+    <div class="res-hero-row">
+      <div class="res-hero-left">
+        <div class="label">Dólares acumulados</div>
+        <div class="res-hero-val" id="rh-usd">$0</div>
+        <div class="res-gain-pill neu" id="rh-gain">Sin operaciones aún</div>
+      </div>
+    </div>
+    <div class="res-4grid">
+      <div class="res-mini">
+        <div class="label">Costo promedio</div>
+        <div class="value" id="rh-tc-prom">—</div>
+      </div>
+      <div class="res-mini">
+        <div class="label">Valor hoy</div>
+        <div class="value" id="rh-valor-hoy">S/ 0</div>
+      </div>
+      <div class="res-mini">
+        <div class="label">Total invertido</div>
+        <div class="value" id="rh-invertido">S/ 0</div>
+      </div>
+      <div class="res-mini">
+        <div class="label">Recuperado (ventas)</div>
+        <div class="value" id="rh-recuperado">S/ 0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalle numérico -->
+  <div class="res-card">
+    <div class="res-card-title">Tu posición detallada</div>
+    <div class="info-row">
+      <span class="info-label">Dólares comprados (total)</span>
+      <span class="info-value" id="d-usd-comprado">$0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Dólares vendidos (total)</span>
+      <span class="info-value" id="d-usd-vendido">$0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Dólares en tu poder</span>
+      <span class="info-value" id="d-usd-neto">$0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Costo promedio ponderado</span>
+      <span class="info-value" id="d-tc-prom">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Valor si vendes hoy</span>
+      <span class="info-value" id="d-valor-hoy">S/ 0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Ganancia / pérdida estimada</span>
+      <span class="info-value" id="d-ganancia">—</span>
+    </div>
+  </div>
+
+  <!-- Narrativa -->
+  <div class="res-card">
+    <div class="res-card-title">En palabras simples</div>
+    <div class="narrative" id="narrativa">Guarda operaciones para ver tu resumen.</div>
+  </div>
+
+  <!-- Insights mensuales -->
+  <div class="res-card" id="insights-card" style="display:none">
+    <div class="res-card-title">Insights recientes</div>
+    <div class="insight-chips" id="insights-list"></div>
+  </div>
+
+  <!-- Exportar / Importar -->
+  <div class="res-card">
+    <div class="res-card-title">Datos</div>
+    <div style="font-size:13px;color:var(--ink-3);margin-bottom:12px;line-height:1.5">
+      Exporta tu historial para hacer un respaldo o abrirlo en otro dispositivo.
+    </div>
+    <div class="data-row">
+      <button class="btn-outline" onclick="exportarJSON()">
+        ⬆️ Exportar JSON
+      </button>
+      <button class="btn-outline" onclick="document.getElementById('import-file2').click()">
+        ⬇️ Importar JSON
+      </button>
+      <input type="file" id="import-file2" accept=".json" style="display:none" onchange="importarJSON(event)">
+    </div>
+  </div>
+
+</div><!-- /v-resumen -->
+
+</div><!-- /shell -->
+
+<!-- Tab bar -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-item on" id="tab-inicio" onclick="setTab('inicio',this)">
+      <span class="tab-icon">⚡</span>
+      <span class="tab-label">Inicio</span>
+    </button>
+    <button class="tab-item" id="tab-historial" onclick="setTab('historial',this)">
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">Historial</span>
+    </button>
+    <button class="tab-item" id="tab-resumen" onclick="setTab('resumen',this)">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">Resumen</span>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════
+   ESTADO GLOBAL
+════════════════════════════════════════════ */
+var STATE = {
+  tc:    3.7245,
+  tipo:  'buy',   // 'buy' | 'sell'
+  cur:   'pen',   // 'pen' | 'usd'
+  ops:   [],
+  meta:  0        // objetivo USD (0 = sin meta)
+};
+
+/* ════════════════════════════════════════════
+   PERSISTENCIA — localStorage
+════════════════════════════════════════════ */
+var STORAGE_KEY  = 'mis_dolares_ops_v2';
+var META_KEY     = 'mis_dolares_meta';
+
+function cargarOps() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function persistirOps() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.ops)); } catch(e) {}
+}
+
+function cargarMeta() {
+  try { return parseFloat(localStorage.getItem(META_KEY) || '0') || 0; } catch(e) { return 0; }
+}
+
+function persistirMeta() {
+  try { localStorage.setItem(META_KEY, STATE.meta); } catch(e) {}
+}
+
+/* ════════════════════════════════════════════
+   CÁLCULO DE PROMEDIO PONDERADO REAL
+   ─────────────────────────────────────────
+   Suma (tc_i × usd_i) / suma(usd_i)
+   Esto da el costo real por dólar
+   considerando el volumen de cada compra.
+════════════════════════════════════════════ */
+function calcTCPromedioPonderado(ops) {
+  var compras = ops.filter(function(o){ return o.tipo === 'buy'; });
+  if (!compras.length) return 0;
+  var totalPen = compras.reduce(function(s,o){ return s + o.pen; }, 0);
+  var totalUsd = compras.reduce(function(s,o){ return s + o.usd; }, 0);
+  // Promedio ponderado = total soles invertidos / total dólares obtenidos
+  return totalUsd > 0 ? totalPen / totalUsd : 0;
+}
+
+/* ════════════════════════════════════════════
+   POSICIÓN ACTUAL
+   Calcula dólares netos, valor, ganancia.
+════════════════════════════════════════════ */
+function calcPosicion() {
+  var ops = STATE.ops;
+  var buyOps  = ops.filter(function(o){ return o.tipo === 'buy';  });
+  var sellOps = ops.filter(function(o){ return o.tipo === 'sell'; });
+
+  var usdComprado = buyOps.reduce(function(s,o){ return s + o.usd; }, 0);
+  var usdVendido  = sellOps.reduce(function(s,o){ return s + o.usd; }, 0);
+  var usdNeto     = Math.max(0, usdComprado - usdVendido);
+
+  var penInvertido    = buyOps.reduce(function(s,o){ return s + o.pen; }, 0);
+  var penRecuperado   = sellOps.reduce(function(s,o){ return s + o.pen; }, 0);
+
+  var tcProm     = calcTCPromedioPonderado(ops);
+  var valorHoy   = usdNeto * STATE.tc;
+  var costoBase  = usdNeto * tcProm;
+  var ganancia   = tcProm > 0 ? valorHoy - costoBase : 0;
+
+  return {
+    usdComprado, usdVendido, usdNeto,
+    penInvertido, penRecuperado,
+    tcProm, valorHoy, costoBase, ganancia
+  };
+}
+
+/* ════════════════════════════════════════════
+   RECOMENDACIÓN SIMPLE Y HONESTA
+   ─────────────────────────────────────────
+   Compara el TC actual con:
+   1. El promedio ponderado del historial propio
+   2. Un rango referencial si no hay historial
+   
+   No inventamos IA, no usamos indicadores.
+   Solo: "tu promedio es X, hoy es Y".
+════════════════════════════════════════════ */
+var TC_REF_BAJO = 3.68;
+var TC_REF_ALTO = 3.82;
+
+function calcRecomendacion() {
+  var tc = STATE.tc;
+  var pos = calcPosicion();
+  var ref = pos.tcProm > 0 ? pos.tcProm : (TC_REF_BAJO + TC_REF_ALTO) / 2;
+  var diff = ((tc - ref) / ref) * 100; // diferencia porcentual
+
+  if (diff < -0.6) {
+    return {
+      cls: 'green',
+      txt: 'Por debajo de tu promedio — buen momento para comprar'
+    };
+  }
+  if (diff < -0.2) {
+    return {
+      cls: 'green',
+      txt: 'Precio ligeramente bajo respecto a tu historial'
+    };
+  }
+  if (diff < 0.2) {
+    return {
+      cls: 'blue',
+      txt: 'Precio en rango normal respecto a tu historial'
+    };
+  }
+  if (diff < 0.7) {
+    return {
+      cls: 'amber',
+      txt: 'Por encima de tu promedio — considera esperar'
+    };
+  }
+  return {
+    cls: 'red',
+    txt: 'Precio alto respecto a tu historial — buen momento para vender'
+  };
+}
+
+function renderRec() {
+  var r   = calcRecomendacion();
+  var pill = document.getElementById('rec-pill');
+  var dot  = document.getElementById('rec-dot');
+  var txt  = document.getElementById('rec-text');
+  pill.className = 'rec-pill ' + r.cls;
+  dot.className  = 'rec-dot '  + r.cls;
+  txt.textContent = r.txt;
+}
+
+/* ════════════════════════════════════════════
+   POSICIÓN EN INICIO
+════════════════════════════════════════════ */
+function renderPosicion() {
+  var buyOps = STATE.ops.filter(function(o){ return o.tipo === 'buy'; });
+  var secEl  = document.getElementById('pos-section');
+
+  if (!buyOps.length) {
+    secEl.style.display = 'none';
+    return;
+  }
+  secEl.style.display = 'block';
+
+  var pos = calcPosicion();
+  var gainCls = pos.ganancia > 0 ? 'pos' : pos.ganancia < 0 ? 'neg' : 'neu';
+  var gainTxt = pos.tcProm > 0
+    ? (pos.ganancia >= 0 ? '+' : '') + 'S/ ' + fmt(pos.ganancia, 0) + ' est.'
+    : 'Sin datos';
+
+  document.getElementById('pos-usd').textContent        = '$' + fmt(pos.usdNeto, 2);
+  document.getElementById('pos-gain').textContent       = gainTxt;
+  document.getElementById('pos-gain').className         = 'pos-gain-badge ' + gainCls;
+  document.getElementById('pos-tc-prom').textContent    = pos.tcProm > 0 ? pos.tcProm.toFixed(4) : '—';
+  document.getElementById('pos-valor').textContent      = 'S/ ' + fmt(pos.valorHoy, 0);
+  document.getElementById('pos-invertido').textContent  = 'S/ ' + fmt(pos.penInvertido, 0);
+  document.getElementById('pos-ops').textContent        = STATE.ops.length;
+}
+
+/* ════════════════════════════════════════════
+   META DE AHORRO
+════════════════════════════════════════════ */
+function renderMeta() {
+  var pos = calcPosicion();
+  var meta = STATE.meta;
+  var displayEl = document.getElementById('meta-display');
+  var setupEl   = document.getElementById('meta-setup');
+
+  if (!meta) {
+    displayEl.style.display = 'none';
+    return;
+  }
+  displayEl.style.display = 'block';
+  setupEl.classList.remove('on');
+
+  var pct = Math.min(100, (pos.usdNeto / meta) * 100);
+  document.getElementById('meta-actual').textContent = '$' + fmt(pos.usdNeto, 0);
+  document.getElementById('meta-obj-val').textContent = '$' + fmt(meta, 0);
+  document.getElementById('meta-bar').style.width = pct.toFixed(1) + '%';
+  document.getElementById('meta-label').textContent = pct.toFixed(0) + '% completado';
+  document.getElementById('meta-pct-txt').textContent = pct.toFixed(0) + '%';
+  document.getElementById('meta-edit-btn').textContent = 'Editar';
+  document.getElementById('meta-title').textContent = 'Meta: $' + fmt(meta, 0);
+}
+
+function toggleMetaEdit() {
+  var s = document.getElementById('meta-setup');
+  s.classList.toggle('on');
+  if (s.classList.contains('on')) {
+    document.getElementById('meta-input').value = STATE.meta || '';
+    document.getElementById('meta-input').focus();
+  }
+}
+
+function guardarMeta() {
+  var v = parseFloat(document.getElementById('meta-input').value) || 0;
+  STATE.meta = v;
+  persistirMeta();
+  renderMeta();
+}
+
+function cancelarMeta() {
+  document.getElementById('meta-setup').classList.remove('on');
+}
+
+/* ════════════════════════════════════════════
+   CALCULADORA PRINCIPAL
+════════════════════════════════════════════ */
+function calcular() {
+  var raw = parseFloat(document.getElementById('amount-input').value) || 0;
+  var mainEl  = document.getElementById('result-main');
+  var simEl   = document.getElementById('sim-box');
+  var saveBtn = document.getElementById('btn-save');
+
+  if (!raw || raw <= 0) {
+    mainEl.className   = 'result-amount empty';
+    mainEl.textContent = '—';
+    simEl.innerHTML    = 'Ingresa un monto para simular.';
+    saveBtn.disabled   = true;
+    return;
+  }
+
+  saveBtn.disabled = false;
+  var tc = STATE.tc;
+  var penAmt, usdAmt;
+
+  if (STATE.tipo === 'buy') {
+    // Compro USD: entrego soles → recibo dólares
+    if (STATE.cur === 'pen') { penAmt = raw; usdAmt = raw / tc; }
+    else                     { usdAmt = raw; penAmt = raw * tc; }
+
+    mainEl.className   = 'result-amount buy';
+    mainEl.textContent = '$' + fmt(usdAmt, 2);
+
+    // Simulación con +/-0.02
+    var tcHigh = tc + 0.02, tcLow = tc - 0.02;
+    var ganSi  = (tcHigh - tc) * usdAmt;
+    var pedSi  = (tc - tcLow) * usdAmt;
+
+    simEl.innerHTML =
+      'Entregas <strong>S/ ' + fmt(penAmt, 0) + '</strong> → recibes <strong>$' + fmt(usdAmt, 2) + '</strong>.<br>' +
+      'Si el dólar sube a ' + tcHigh.toFixed(4) + ', ganarías aprox. <span class="sim-gain">+S/ ' + fmt(ganSi, 0) + '</span>.<br>' +
+      'Si baja a ' + tcLow.toFixed(4) + ', perderías aprox. <span class="sim-lose">−S/ ' + fmt(pedSi, 0) + '</span>.';
+
+  } else {
+    // Vendo USD: entrego dólares → recibo soles
+    if (STATE.cur === 'usd') { usdAmt = raw; penAmt = raw * tc; }
+    else                     { penAmt = raw; usdAmt = raw / tc; }
+
+    mainEl.className   = 'result-amount sell';
+    mainEl.textContent = 'S/ ' + fmt(penAmt, 0);
+
+    var pos = calcPosicion();
+    var extra = '';
+    if (pos.tcProm > 0) {
+      var ganPot = (tc - pos.tcProm) * usdAmt;
+      extra = '<br>Tu costo promedio es <strong>' + pos.tcProm.toFixed(4) + '</strong>. ' +
+        'Resultado estimado: <span class="' + (ganPot >= 0 ? 'sim-gain' : 'sim-lose') + '">' +
+        (ganPot >= 0 ? '+' : '') + 'S/ ' + fmt(ganPot, 0) + '</span>.';
+    }
+
+    simEl.innerHTML =
+      'Entregas <strong>$' + fmt(usdAmt, 2) + '</strong> → recibes <strong>S/ ' + fmt(penAmt, 0) + '</strong>.' +
+      extra;
+  }
+}
+
+/* ════════════════════════════════════════════
+   GUARDAR OPERACIÓN
+════════════════════════════════════════════ */
+function guardar() {
+  var raw = parseFloat(document.getElementById('amount-input').value) || 0;
+  if (!raw) return;
+
+  var tc = STATE.tc;
+  var penAmt, usdAmt;
+
+  if (STATE.tipo === 'buy') {
+    penAmt = STATE.cur === 'pen' ? raw : raw * tc;
+    usdAmt = STATE.cur === 'pen' ? raw / tc : raw;
+  } else {
+    usdAmt = STATE.cur === 'usd' ? raw : raw / tc;
+    penAmt = STATE.cur === 'usd' ? raw * tc : raw;
+  }
+
+  var nota = document.getElementById('note-input').value.trim();
+  var ahora = new Date();
+
+  STATE.ops.push({
+    id:    Date.now(),
+    ts:    ahora.getTime(),
+    fecha: ahora.toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' }),
+    tipo:  STATE.tipo,
+    tc:    tc,
+    pen:   penAmt,
+    usd:   usdAmt,
+    nota:  nota
+  });
+
+  persistirOps();
+
+  // Feedback
+  var fbEl = document.getElementById('save-fb');
+  var msg  = STATE.tipo === 'buy'
+    ? '✓ Compra guardada · $' + fmt(usdAmt, 2)
+    : '✓ Venta guardada · S/ ' + fmt(penAmt, 0);
+  fbEl.textContent = msg;
+  setTimeout(function(){ fbEl.textContent = ''; }, 3500);
+
+  // Reset
+  document.getElementById('amount-input').value = '';
+  document.getElementById('note-input').value   = '';
+  calcular();
+  renderPosicion();
+  renderRec();
+  renderMeta();
+}
+
+/* ════════════════════════════════════════════
+   HISTORIAL — agrupado por período
+════════════════════════════════════════════ */
+function getGrupo(ts) {
+  // Retorna una clave de agrupamiento y un label
+  var ahora = new Date();
+  var fecha  = new Date(ts);
+  var hoy    = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+  var ayer   = new Date(hoy - 86400000);
+  var semAnt = new Date(hoy - 6 * 86400000);
+
+  if (fecha >= hoy)    return { key: '__hoy__',    label: 'Hoy' };
+  if (fecha >= ayer)   return { key: '__ayer__',   label: 'Ayer' };
+  if (fecha >= semAnt) return { key: '__semana__', label: 'Esta semana' };
+
+  // Para meses anteriores: "Mayo 2026"
+  var mes = fecha.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' });
+  var key = fecha.getFullYear() + '-' + String(fecha.getMonth() + 1).padStart(2,'0');
+  return { key: key, label: mes.charAt(0).toUpperCase() + mes.slice(1) };
+}
+
+function renderHistorial() {
+  var el = document.getElementById('hist-list');
+  var ops = STATE.ops.slice().reverse(); // más recientes primero
+
+  if (!ops.length) {
+    el.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="empty-icon">📋</div>' +
+        '<div class="empty-text">Aún no tienes operaciones.<br>Guarda tu primera compra o venta.</div>' +
+      '</div>';
+    return;
+  }
+
+  // Agrupar
+  var grupos = [];
+  var grupoMap = {};
+
+  ops.forEach(function(op) {
+    var g = getGrupo(op.ts);
+    if (!grupoMap[g.key]) {
+      grupoMap[g.key] = { label: g.label, ops: [] };
+      grupos.push(grupoMap[g.key]);
+    }
+    grupoMap[g.key].ops.push(op);
+  });
+
+  var html = '';
+  grupos.forEach(function(g) {
+    html += '<div class="group-label">' + g.label + '</div>';
+    g.ops.forEach(function(op) {
+      var isBuy = op.tipo === 'buy';
+      var icon  = isBuy ? '🟢' : '🔴';
+      var label = isBuy ? 'Compra USD' : 'Venta USD';
+      var mainAmt = isBuy
+        ? '<span class="op-amount buy">+$' + fmt(op.usd, 2) + '</span>'
+        : '<span class="op-amount sell">+S/ ' + fmt(op.pen, 0) + '</span>';
+      var entrego = isBuy
+        ? 'Entregaste S/ ' + fmt(op.pen, 0)
+        : 'Entregaste $' + fmt(op.usd, 2);
+      var notaHtml = op.nota
+        ? '<div class="op-note">🏷 ' + op.nota + '</div>'
+        : '';
+
+      html +=
+        '<div class="op-card">' +
+          '<div class="op-icon ' + op.tipo + '">' + icon + '</div>' +
+          '<div class="op-body">' +
+            '<div class="op-type">' + label + '</div>' +
+            '<div class="op-meta">' + op.fecha + ' · TC ' + op.tc.toFixed(4) + '</div>' +
+            '<div class="op-meta">' + entrego + '</div>' +
+            notaHtml +
+          '</div>' +
+          '<div class="op-right">' +
+            mainAmt +
+            '<div class="op-result-lbl">recibiste</div>' +
+          '</div>' +
+          '<button class="op-del" onclick="eliminarOp(' + op.id + ')">✕</button>' +
+        '</div>';
+    });
+  });
+
+  el.innerHTML = html;
+}
+
+function eliminarOp(id) {
+  STATE.ops = STATE.ops.filter(function(o){ return o.id !== id; });
+  persistirOps();
+  renderHistorial();
+  renderResumen();
+  renderPosicion();
+  renderRec();
+  renderMeta();
+}
+
+function borrarTodo() {
+  if (!confirm('¿Borrar todo el historial? Esta acción no se puede deshacer.')) return;
+  STATE.ops = [];
+  persistirOps();
+  renderHistorial();
+  renderResumen();
+  renderPosicion();
+  renderRec();
+  renderMeta();
+}
+
+/* ════════════════════════════════════════════
+   RESUMEN
+════════════════════════════════════════════ */
+function renderResumen() {
+  var ops = STATE.ops;
+  var pos = calcPosicion();
+
+  // Hero
+  document.getElementById('rh-usd').textContent       = '$' + fmt(pos.usdNeto, 2);
+  document.getElementById('rh-tc-prom').textContent   = pos.tcProm > 0 ? pos.tcProm.toFixed(4) : '—';
+  document.getElementById('rh-valor-hoy').textContent = 'S/ ' + fmt(pos.valorHoy, 0);
+  document.getElementById('rh-invertido').textContent = 'S/ ' + fmt(pos.penInvertido, 0);
+  document.getElementById('rh-recuperado').textContent= 'S/ ' + fmt(pos.penRecuperado, 0);
+
+  // Gain pill
+  var gainEl  = document.getElementById('rh-gain');
+  if (!ops.filter(function(o){ return o.tipo === 'buy'; }).length) {
+    gainEl.textContent = 'Sin operaciones aún';
+    gainEl.className   = 'res-gain-pill neu';
+  } else if (pos.ganancia >= 0) {
+    gainEl.textContent = '+S/ ' + fmt(pos.ganancia, 0) + ' si vendes hoy';
+    gainEl.className   = 'res-gain-pill pos';
+  } else {
+    gainEl.textContent = 'S/ ' + fmt(pos.ganancia, 0) + ' vs costo';
+    gainEl.className   = 'res-gain-pill neg';
+  }
+
+  // Detalle
+  document.getElementById('d-usd-comprado').textContent = '$' + fmt(pos.usdComprado, 2);
+  document.getElementById('d-usd-vendido').textContent  = '$' + fmt(pos.usdVendido, 2);
+  document.getElementById('d-usd-neto').textContent     = '$' + fmt(pos.usdNeto, 2);
+  document.getElementById('d-tc-prom').textContent      = pos.tcProm > 0 ? pos.tcProm.toFixed(4) : '—';
+  document.getElementById('d-valor-hoy').textContent    = 'S/ ' + fmt(pos.valorHoy, 0);
+
+  var ganEl  = document.getElementById('d-ganancia');
+  if (pos.tcProm > 0) {
+    ganEl.textContent = (pos.ganancia >= 0 ? '+' : '') + 'S/ ' + fmt(pos.ganancia, 0);
+    ganEl.className   = 'info-value ' + (pos.ganancia >= 0 ? 'pos' : 'neg');
+  } else {
+    ganEl.textContent = '—';
+    ganEl.className   = 'info-value';
+  }
+
+  // Narrativa
+  renderNarrativa(pos);
+
+  // Insights mensuales
+  renderInsights();
+}
+
+function renderNarrativa(pos) {
+  var el    = document.getElementById('narrativa');
+  var parts = [];
+
+  if (!STATE.ops.length) {
+    el.innerHTML = 'Guarda operaciones para ver tu resumen personalizado.';
+    return;
+  }
+
+  if (pos.tcProm > 0 && pos.usdNeto > 0) {
+    var diff    = STATE.tc - pos.tcProm;
+    var diffCts = (diff * 100).toFixed(1);
+    var cls     = diff >= 0 ? 'acc-g' : 'acc-r';
+    var signo   = diff >= 0 ? '+' : '';
+
+    parts.push(
+      'Compraste dólares a un costo promedio ponderado de <strong>' + pos.tcProm.toFixed(4) + '</strong>. ' +
+      'El dólar hoy está a <strong>' + STATE.tc.toFixed(4) + '</strong> ' +
+      '(<span class="' + cls + '">' + signo + diffCts + ' céntimos</span>).'
+    );
+    parts.push(
+      'Tienes <strong>$' + fmt(pos.usdNeto, 2) + '</strong> en poder. ' +
+      'Si vendes hoy, tu resultado estimado es <span class="' + (pos.ganancia >= 0 ? 'acc-g' : 'acc-r') + '">' +
+      (pos.ganancia >= 0 ? '+' : '') + 'S/ ' + fmt(pos.ganancia, 0) + '</span>.'
+    );
+  }
+
+  if (pos.penRecuperado > 0) {
+    parts.push(
+      'Ya recuperaste <strong>S/ ' + fmt(pos.penRecuperado, 0) + '</strong> en soles con tus ventas.'
+    );
+  }
+
+  el.innerHTML = parts.length
+    ? parts.join('<br><br>')
+    : 'Guarda más operaciones para ver tu situación completa.';
+}
+
+/* ════════════════════════════════════════════
+   INSIGHTS MENSUALES
+   Análisis simple del comportamiento mensual.
+════════════════════════════════════════════ */
+function renderInsights() {
+  var ops = STATE.ops;
+  var card = document.getElementById('insights-card');
+  var list = document.getElementById('insights-list');
+
+  if (ops.length < 2) { card.style.display = 'none'; return; }
+
+  var insights = [];
+
+  // Agrupar ops por mes (YYYY-MM)
+  var byMonth = {};
+  ops.forEach(function(op) {
+    var d  = new Date(op.ts);
+    var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    var lbl = d.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' });
+    lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+    if (!byMonth[key]) byMonth[key] = { label: lbl, ops: [] };
+    byMonth[key].ops.push(op);
+  });
+
+  var keys   = Object.keys(byMonth).sort().reverse();
+  var mesAct = keys[0];
+  var mesData = byMonth[mesAct];
+
+  if (!mesData) { card.style.display = 'none'; return; }
+
+  // Dólares acumulados este mes
+  var buyEste   = mesData.ops.filter(function(o){ return o.tipo === 'buy'; });
+  var usdEste   = buyEste.reduce(function(s,o){ return s + o.usd; }, 0);
+  var numEste   = mesData.ops.length;
+
+  if (usdEste > 0) {
+    var tcPromEste = buyEste.length
+      ? buyEste.reduce(function(s,o){ return s + o.pen; }, 0) / usdEste
+      : 0;
+    insights.push({
+      icon: '📅',
+      txt: '<strong>' + mesData.label + ':</strong> Compraste <strong>$' + fmt(usdEste, 2) + '</strong>' +
+           (tcPromEste > 0 ? ' a un promedio de <strong>' + tcPromEste.toFixed(4) + '</strong>' : '') + '.'
+    });
+  }
+
+  insights.push({
+    icon: '🔢',
+    txt: '<strong>' + mesData.label + ':</strong> Realizaste <strong>' + numEste + '</strong> operaci' +
+         (numEste === 1 ? 'ón' : 'ones') + '.'
+  });
+
+  // Mes con más compras
+  if (keys.length >= 2) {
+    var mejorMes = null, mejorUsd = 0;
+    keys.forEach(function(k) {
+      var u = byMonth[k].ops.filter(function(o){ return o.tipo === 'buy'; })
+                            .reduce(function(s,o){ return s + o.usd; }, 0);
+      if (u > mejorUsd) { mejorUsd = u; mejorMes = byMonth[k].label; }
+    });
+    if (mejorMes) {
+      insights.push({
+        icon: '🏆',
+        txt: '<strong>' + mejorMes + '</strong> fue tu mes con más compras (<strong>$' + fmt(mejorUsd, 2) + '</strong>).'
+      });
+    }
+  }
+
+  if (!insights.length) { card.style.display = 'none'; return; }
+
+  card.style.display = 'block';
+  list.innerHTML = insights.map(function(i) {
+    return '<div class="insight-chip"><span class="chip-icon">' + i.icon + '</span>' +
+           '<span class="chip-text">' + i.txt + '</span></div>';
+  }).join('');
+}
+
+/* ════════════════════════════════════════════
+   EXPORTAR / IMPORTAR
+════════════════════════════════════════════ */
+function exportarJSON() {
+  if (!STATE.ops.length) {
+    alert('No hay operaciones para exportar.');
+    return;
+  }
+  var payload = JSON.stringify({
+    version: '2',
+    exportado: new Date().toISOString(),
+    ops: STATE.ops,
+    meta: STATE.meta
+  }, null, 2);
+
+  var blob = new Blob([payload], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href   = url;
+  a.download = 'mis-dolares-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importarJSON(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      var ops  = data.ops || data; // soporta formato antiguo (array directo)
+      if (!Array.isArray(ops)) throw new Error('Formato inválido');
+
+      // Merge: no duplicar por id
+      var existingIds = new Set(STATE.ops.map(function(o){ return o.id; }));
+      var nuevas = ops.filter(function(o){ return !existingIds.has(o.id); });
+      STATE.ops = STATE.ops.concat(nuevas).sort(function(a,b){ return a.ts - b.ts; });
+
+      if (data.meta) { STATE.meta = parseFloat(data.meta) || 0; }
+
+      persistirOps();
+      persistirMeta();
+      renderAll();
+      alert('✓ Importado ' + nuevas.length + ' operaciones nuevas.');
+    } catch(err) {
+      alert('Error al importar: verifica que sea un archivo válido de Mis Dólares.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // reset para poder re-importar
+}
+
+/* ════════════════════════════════════════════
+   HELPERS DE UI
+════════════════════════════════════════════ */
+function setTab(tab, btn) {
+  document.querySelectorAll('.tab-item').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+  document.getElementById('v-' + tab).classList.add('on');
+  if (tab === 'historial') renderHistorial();
+  if (tab === 'resumen')   renderResumen();
+}
+
+function setTipo(t) {
+  STATE.tipo = t;
+  document.getElementById('btn-buy').className  = t === 'buy'  ? 'type-btn active-buy'  : 'type-btn';
+  document.getElementById('btn-sell').className = t === 'sell' ? 'type-btn active-sell' : 'type-btn';
+  // Por defecto la moneda a entregar cambia según el tipo
+  if (t === 'buy'  && STATE.cur === 'usd') setCur('pen');
+  if (t === 'sell' && STATE.cur === 'pen') setCur('usd');
+  calcular();
+}
+
+function setCur(c) {
+  STATE.cur = c;
+  document.getElementById('cur-pen').className = c === 'pen' ? 'cur-opt on' : 'cur-opt';
+  document.getElementById('cur-usd').className = c === 'usd' ? 'cur-opt on' : 'cur-opt';
+  document.getElementById('cur-prefix').textContent = c === 'pen' ? 'S/' : '$';
+  calcular();
+}
+
+function fmt(n, decimals) {
+  if (isNaN(n) || n === null || n === undefined) return '0';
+  return n.toLocaleString('es-PE', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+function renderAll() {
+  renderRec();
+  renderPosicion();
+  renderMeta();
+  calcular();
+  // Si estamos en esas pestañas, actualizar también
+  var h = document.getElementById('v-historial');
+  var r = document.getElementById('v-resumen');
+  if (h && h.classList.contains('on')) renderHistorial();
+  if (r && r.classList.contains('on')) renderResumen();
+}
+
+/* ════════════════════════════════════════════
+   TC INPUT — actualización en tiempo real
+════════════════════════════════════════════ */
+document.getElementById('tc-input').addEventListener('input', function() {
+  var v = parseFloat(this.value);
+  if (v > 2.5 && v < 6) {
+    STATE.tc = v;
+    renderRec();
+    calcular();
+    renderPosicion();
+    // Si resumen está abierto, actualizarlo también
+    if (document.getElementById('v-resumen').classList.contains('on')) {
+      renderResumen();
+    }
+  }
+});
+
+/* ════════════════════════════════════════════
+   INICIALIZACIÓN
+════════════════════════════════════════════ */
+(function init() {
+  // Cargar datos
+  STATE.ops  = cargarOps();
+  STATE.meta = cargarMeta();
+
+  // Fecha en header
+  var d = new Date();
+  document.getElementById('hdr-date').textContent =
+    d.toLocaleDateString('es-PE', { weekday:'short', day:'numeric', month:'short' });
+
+  // Render inicial
+  renderAll();
+})();
+</script>
+</body>
+</html>
